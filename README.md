@@ -1,73 +1,274 @@
-# React + TypeScript + Vite
+# Calendar App (React + TypeScript)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación de calendario construida con React, TypeScript y Redux Toolkit.
 
-Currently, two official plugins are available:
+Este proyecto permite visualizar eventos en formato calendario, crear/editar eventos desde un modal, seleccionar eventos activos y eliminarlos desde una acción rápida.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+> Estado actual: implementación **frontend local** (sin backend conectado todavía).
 
-## React Compiler
+---
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## 1) Objetivo del proyecto
 
-## Expanding the ESLint configuration
+Desarrollar una aplicación tipo agenda/calendario con una base sólida para:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Gestión de eventos (CRUD).
+- Flujo de autenticación (UI lista para login/registro).
+- Escalabilidad hacia integración con API y persistencia real.
+- Organización modular por dominios (`auth`, `calendar`, `store`, `hooks`, `helpers`).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 2) Stack tecnológico
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Frontend
+
+- **React 19**
+- **TypeScript**
+- **Vite**
+- **React Router DOM 7**
+- **Redux Toolkit + React Redux**
+
+### Calendario y fechas
+
+- **react-big-calendar**
+- **date-fns**
+- **react-datepicker**
+
+### UI / UX
+
+- **react-modal**
+- **SweetAlert2**
+- **Bootstrap 5** (vía CDN en `index.html`)
+- **Font Awesome** (vía CDN en `index.html`)
+
+---
+
+## 3) Scripts disponibles
+
+Desde la raíz del proyecto:
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Configuración de variables de entorno
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Antes de ejecutar la app, crea tu archivo de entorno local renombrando:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- `.env.template` → `.env`
+
+En Windows (PowerShell):
+
+```powershell
+Copy-Item .env.template .env
 ```
+
+Luego completa en `.env` las variables necesarias para tu entorno.
+
+Scripts definidos:
+
+- `npm run dev`: levanta entorno de desarrollo con Vite.
+- `npm run build`: compila TypeScript y genera build de producción.
+- `npm run lint`: ejecuta ESLint.
+- `npm run preview`: sirve localmente la build generada.
+
+---
+
+## 4) Estructura del proyecto
+
+```text
+src/
+	auth/
+		pages/LoginPage.tsx
+	calendar/
+		components/
+			CalendarEventComponent.tsx
+			CalendarModal.tsx
+			FabAddNew.tsx
+			FabDelete.tsx
+			Navbar.tsx
+		interfaces/CalendarEvent.tsx
+		pages/CalendarPage.tsx
+	helpers/
+		calendarLocalizer.tsx
+		getMessages.tsx
+		getEnvVariables.ts
+	hooks/
+		useCalendarStore.tsx
+		useUiStore.tsx
+	router/
+		AppRouter.tsx
+	store/
+		calendar/calendarSlice.tsx
+		ui/uiSlice.tsx
+		store.tsx
+	CalendarApp.tsx
+	main.tsx
+	styles.css
+```
+
+---
+
+## 5) Arquitectura y flujo
+
+### 5.1 Entrada de la app
+
+- `src/main.tsx` renderiza `CalendarApp` dentro de `#root`.
+- `src/CalendarApp.tsx` envuelve la app con:
+	- `Provider` de Redux (`store` global).
+	- `BrowserRouter` para navegación.
+
+### 5.2 Ruteo
+
+- `src/router/AppRouter.tsx` decide entre:
+	- `LoginPage` para ruta de auth.
+	- `CalendarPage` para la app principal.
+
+Actualmente `authStatus` está fijo en `'authenticated'`, por lo que la app muestra calendario por defecto.
+
+### 5.3 Estado global (Redux)
+
+Se manejan dos slices principales:
+
+#### `calendarSlice`
+
+- Estado:
+	- `events`: arreglo de eventos.
+	- `activeEvent`: evento seleccionado.
+- Acciones:
+	- `onSetActiveEvent`
+	- `onAddNewEvent`
+	- `onUpdateEvent`
+	- `onDeleteEvent`
+
+#### `uiSlice`
+
+- Estado:
+	- `isDateModalOpen`
+- Acciones:
+	- `onOpenDateModal`
+	- `onCloseDateModal`
+
+#### Hooks personalizados
+
+- `useCalendarStore`: encapsula acceso/acciones de calendario.
+- `useUiStore`: encapsula estado y acciones del modal.
+
+---
+
+## 6) Funcionalidades implementadas
+
+### Calendario principal
+
+- Vista mensual/semanal/diaria con `react-big-calendar`.
+- Localización en español (`culture='es'`).
+- Persistencia de la última vista en `localStorage` (`lastView`).
+
+### Gestión de eventos
+
+- Doble click en evento/slot abre modal para editar/crear.
+- Click en evento lo marca como activo.
+- Botón flotante `+` crea un borrador y abre modal.
+- Botón flotante de eliminar aparece solo si hay evento activo y modal cerrado.
+
+### Modal de evento
+
+- Edición de:
+	- Fecha/hora inicio
+	- Fecha/hora fin
+	- Título
+	- Notas
+- Validaciones:
+	- Fin debe ser posterior a inicio.
+	- Título obligatorio.
+- Mensajes de error con SweetAlert2.
+
+### Login UI
+
+- Pantalla con tabs de **Ingreso** y **Registro**.
+- Estilo visual con animaciones (glassmorphism + gradientes).
+- Por ahora solo interfaz (sin lógica real de autenticación).
+
+---
+
+## 7) Localización y utilidades
+
+- `helpers/calendarLocalizer.tsx`: configura `dateFnsLocalizer`.
+- `helpers/getMessages.tsx`: textos del calendario en español.
+- `helpers/getEnvVariables.ts`: helper para exponer `import.meta.env`.
+
+---
+
+## 8) Estado actual del desarrollo
+
+La aplicación está enfocada en frontend y flujo local de eventos.
+
+### Lo que ya funciona
+
+- Render y navegación base.
+- Estado global con Redux Toolkit.
+- Alta/edición/eliminación de eventos en memoria.
+- Modal con validaciones.
+- UI de autenticación.
+
+### Pendiente (próximos pasos)
+
+- Integrar backend para persistencia real de eventos.
+- Reemplazar datos temporales por datos de API.
+- Implementar autenticación real (login/registro/logout).
+- Proteger rutas según sesión.
+- Manejar carga/errores asíncronos en store.
+- Agregar pruebas unitarias/integración.
+
+---
+
+## 9) Consideraciones técnicas importantes
+
+- En `store/store.tsx` se desactiva `serializableCheck` para evitar advertencias de Redux por objetos `Date` en el estado.
+- Bootstrap y Font Awesome se cargan por CDN desde `index.html`.
+- El proyecto usa Vite + TypeScript con configuración ESLint moderna (`eslint.config.js`).
+
+---
+
+## 10) Comandos recomendados para desarrollo
+
+```bash
+# Instalar dependencias
+npm install
+
+# Levantar en desarrollo
+npm run dev
+
+# Validar lint
+npm run lint
+
+# Generar build
+npm run build
+
+# Probar build local
+npm run preview
+```
+
+---
+
+## 11) Roadmap sugerido
+
+1. Crear capa de servicios HTTP (por ejemplo `src/api`).
+2. Conectar `useCalendarStore` con endpoints reales (crear/actualizar/eliminar/listar).
+3. Incorporar `authSlice` y token/session handling.
+4. Implementar rutas públicas/privadas en `AppRouter`.
+5. Añadir testing con Vitest + React Testing Library.
+
+---
+
+## 12) Autor y contexto
+
+Proyecto de práctica/entrenamiento para consolidar:
+
+- React con arquitectura por features.
+- Redux Toolkit en un caso real.
+- Manejo de fechas, modales y UI interactiva.
+
+Si quieres, puedo dejar en el siguiente paso una versión del README con badges, capturas y una sección de "API Contract" para acelerar la integración con backend.
