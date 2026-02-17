@@ -1,5 +1,6 @@
 export interface CalendarEvent {
     _id?: string;
+    id?: string;
     event?: CalendarEventBasic;
     continuesPrior?: boolean;
     continuesAfter?: boolean;
@@ -12,6 +13,7 @@ export interface CalendarEvent {
 
 export interface CalendarEventBasic {
     _id?: string;
+    id?: string;
     title: string;
     notes: string;
     start: Date;
@@ -21,7 +23,8 @@ export interface CalendarEventBasic {
 }
 
 export interface User {
-    _id: string;
+    _id?: string;
+    uid?: string;
     name: string;
 }
 

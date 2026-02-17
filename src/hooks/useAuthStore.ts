@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { calendarApi } from '../api';
-import { clearErrorMessage, onChecking, onLogin, onLogout } from '../store';
+import { clearErrorMessage, onChecking, onLogin, onLogout, onLogoutCalendar } from '../store';
 import type { RootState } from '../store';
 
 export const useAuthStore = () => {
@@ -9,7 +9,7 @@ export const useAuthStore = () => {
     const { status, user, errorMessage } = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
 
-    console.log({ status, user, errorMessage });
+    //console.log({ status, user, errorMessage });
 
     const startLogin = async ({ email, password }: { email: string; password: string }) => {
         console.log({ email, password });
@@ -61,14 +61,15 @@ export const useAuthStore = () => {
         } catch (error) {
             localStorage.clear();
             //dispatch(onLogout('Token expiró!'));
-            dispatch(onLogout('Token expiró!'));
+            dispatch(onLogout(undefined));
         }
     }
 
     const startLogout = () => {
         localStorage.clear();
+        dispatch(onLogoutCalendar());
         dispatch(onLogout(undefined));
-        //dispatch(onLogout('Saliendo...'));
+        //dispatch(onLogout('Cerrando sesión...'));
     }
 
     return {

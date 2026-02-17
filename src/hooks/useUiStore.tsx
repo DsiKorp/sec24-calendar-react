@@ -5,7 +5,7 @@ import { onCloseDateModal, onOpenDateModal, type RootState } from '../store';
 
 export const useUiStore = () => {
 
-    console.log('uiStore');
+    //console.log('uiStore');
 
     const dispatch = useDispatch();
 

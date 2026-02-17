@@ -4,8 +4,8 @@
 
 export const CalendarEventComponent = (event: any) => {
 
-    console.log('CalendarEventComponentCalendarEventComponentCalendarEventComponent')
-    console.log(event);
+    // console.log('CalendarEventComponentCalendarEventComponentCalendarEventComponent')
+    // console.log(event);
     const { title, user } = event.event;
 
     return (
